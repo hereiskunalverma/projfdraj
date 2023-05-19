@@ -34,7 +34,7 @@ def main():
       chunks = text_splitter.split_text(text)
       
       # create embeddings
-      embeddings = OpenAIEmbeddings()
+      embeddings = OpenAIEmbeddings(openai_api_key="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")
       knowledge_base = FAISS.from_texts(chunks, embeddings)
       
       # show user input
