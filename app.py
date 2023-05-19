@@ -8,7 +8,7 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain.llms import OpenAI
 from langchain.callbacks import get_openai_callback
 
-
+OPENAI_API_KEY=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
 def main():
     load_dotenv()
     st.set_page_config(page_title="Project - FDRaj")
@@ -34,7 +34,7 @@ def main():
       chunks = text_splitter.split_text(text)
       
       # create embeddings
-      embeddings = OpenAIEmbeddings(openai_api_key="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")
+      embeddings = OpenAIEmbeddings()
       knowledge_base = FAISS.from_texts(chunks, embeddings)
       
       # show user input
@@ -42,7 +42,7 @@ def main():
       if user_question:
         docs = knowledge_base.similarity_search(user_question)
         
-        llm = OpenAI(openai_api_key="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")
+        llm = OpenAI()
         chain = load_qa_chain(llm, chain_type="stuff")
         with get_openai_callback() as cb:
           response = chain.run(input_documents=docs, question=user_question)
