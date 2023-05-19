@@ -12,7 +12,7 @@ from langchain.callbacks import get_openai_callback
 def main():
     load_dotenv()
     st.set_page_config(page_title="Project - FDRaj")
-    st.header("Ask your PDF 💬")
+    st.header("Project - FDRaj")
     
     # upload file
     pdf = st.file_uploader("Upload your PDF", type="pdf")
@@ -42,7 +42,7 @@ def main():
       if user_question:
         docs = knowledge_base.similarity_search(user_question)
         
-        llm = OpenAI()
+        llm = OpenAI(openai_api_key="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")
         chain = load_qa_chain(llm, chain_type="stuff")
         with get_openai_callback() as cb:
           response = chain.run(input_documents=docs, question=user_question)
