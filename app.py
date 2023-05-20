@@ -7,6 +7,8 @@ from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
 from langchain.llms import OpenAI
 from langchain.callbacks import get_openai_callback
+from langchain.agents import create_csv_agent
+from langchain.llms import OpenAI
 
 openai_api_key=st.secrets["OPENAI_API_KEY"]
 def main():
@@ -15,40 +17,19 @@ def main():
     st.header("Project - FDRaj")
     
     # upload file
-    pdf = st.file_uploader("Upload your PDF", type="pdf")
+    csv = st.file_uploader("Upload your CSV only", type="csv")
     
     # extract the text
-    if pdf is not None:
-      pdf_reader = PdfReader(pdf)
-      text = ""
-      for page in pdf_reader.pages:
-        text += page.extract_text()
-        
-      # split into chunks
-      text_splitter = CharacterTextSplitter(
-        separator="\n",
-        chunk_size=1000,
-        chunk_overlap=200,
-        length_function=len
-      )
-      chunks = text_splitter.split_text(text)
-      
-      # create embeddings
-      embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
-      knowledge_base = FAISS.from_texts(chunks, embeddings)
+    if csv is not None:
+      agent = create_csv_agent(OpenAI(temperature=0), csv, verbose=True, header=True)
+      print(agent.agent.llm_chain.prompt.template)
       
       # show user input
       user_question = st.text_input("Ask a question about your PDF:")
       if user_question:
-        docs = knowledge_base.similarity_search(user_question)
-        
-        llm = OpenAI(openai_api_key=openai_api_key)
-        chain = load_qa_chain(llm, chain_type="stuff")
-        with get_openai_callback() as cb:
-          response = chain.run(input_documents=docs, question=user_question)
-          print(cb)
+        answer = agent.run(user_question)
            
-        st.write(response)
+        st.write(answer)
     
 
 if __name__ == '__main__':
